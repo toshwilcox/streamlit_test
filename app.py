@@ -1,19 +1,28 @@
 import streamlit as st
-from pdf2image import convert_from_bytes
+import fitz  # PyMuPDF
 from PIL import Image
+import io
 
 st.set_page_config(page_title="PDF Page Selector for Door Detection")
 st.title("Step 1: Upload a PDF and Select Relevant Pages")
 
 # Upload the PDF
-pdf_file = st.file_uploader("Upload a shop drawing (PDF)", type=["pdf"])
+pdf_file = st.file_uploader("Upload a multi-page shop drawing (PDF)", type=["pdf"])
 
 if pdf_file:
     st.info("Converting PDF pages to images. This may take a few seconds...")
-    # Convert all pages to images
-    pages = convert_from_bytes(pdf_file.read(), dpi=100)
-    selected_pages = []
 
+    # Open the PDF with PyMuPDF
+    doc = fitz.open(stream=pdf_file.read(), filetype="pdf")
+    pages = []
+
+    for page_num in range(len(doc)):
+        page = doc.load_page(page_num)
+        pix = page.get_pixmap(dpi=150)
+        img = Image.open(io.BytesIO(pix.tobytes("png")))
+        pages.append(img)
+
+    selected_pages = []
     st.write("### Select the pages that are relevant for door detection:")
 
     for i, page in enumerate(pages):
