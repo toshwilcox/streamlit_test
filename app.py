@@ -1,4 +1,6 @@
 import streamlit as st
+from pdf2image import convert_from_bytes
+from PIL import Image
 
 st.set_page_config(page_title="PDF Page Selector for Door Detection")
 st.title("Step 1: Upload a PDF and Select Relevant Pages")
